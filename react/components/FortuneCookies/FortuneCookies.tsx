@@ -1,72 +1,109 @@
-import "whatwg-fetch";
-import React from "react";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import {
+  Button,
+  IconDelete,
+  IconPlus,
+  Modal,
+  Input,
+  Table,
+  Spinner,
+} from "vtex.styleguide";
+
 import axios from "axios";
 
-const API_URL = "/_v/fortune";
+type Row = { id: string; CookieFortune: string };
 
-const Spinner = () => (
-  <div style={{ marginTop: "1rem" }}>
-    <div className="spinner" />
-    <style>{`
-      .spinner{
-        margin:auto;border:4px solid #eee;border-top:4px solid #fcbf49;
-        border-radius:50%;width:40px;height:40px;
-        animation:spin 1s linear infinite;
-      }
-      @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
-    `}</style>
-  </div>
-);
+const API = "/_v/fortune";
 
-const FortuneCookies = () => {
-  const [loading, setLoading] = useState(false);
-  const [phrase, setPhrase] = useState("");
-  const [lucky, setLucky] = useState("");
+const AdminFortune: React.FC = () => {
+  const [rows, setRows] = useState<Row[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [show, setShow] = useState(false);
+  const [text, setText] = useState("");
 
-  const luckyNumber = () => `${rand2()}-${rand2()}-${rand4()}`;
-  const rand2 = () => Math.floor(Math.random() * 90 + 10);
-  const rand4 = () => Math.floor(Math.random() * 9000 + 1000);
-
-  const handleClick = async () => {
+  const fetchRows = async () => {
     setLoading(true);
-    try {
-      const { data } = await axios.get(API_URL);
-
-      if (!data?.length) throw new Error("Sin registros");
-      const random = data[Math.floor(Math.random() * data.length)];
-      setPhrase(random.CoookieFortune);
-      setLucky(luckyNumber());
-    } catch (err) {
-      console.error(err);
-      setPhrase("No pudimos obtener tu fortuna 😕");
-      setLucky("");
-    } finally {
-      setLoading(false);
-    }
+    const { data } = await axios.get<Row[]>(API);
+    setRows(data);
+    setLoading(false);
   };
 
-  return (
-    <div style={{ textAlign: "center", padding: "2rem" }}>
-      <button
-        onClick={handleClick}
-        style={{
-          padding: "0.5rem 1rem",
-          fontSize: 16,
-          background: "#fcbf49",
-          border: "none",
-          borderRadius: 8,
-          cursor: "pointer",
-        }}
-      >
-        Obtener fortuna
-      </button>
+  useEffect(() => {
+    fetchRows();
+  }, []);
 
-      {loading && <Spinner />}
-      {!loading && phrase && <h3 style={{ marginTop: "2rem" }}>{phrase}</h3>}
-      {!loading && lucky && <h5 style={{ color: "#888" }}>{lucky}</h5>}
+  const handleSave = async () => {
+    if (!text.trim()) return;
+    await axios.post(API, { CookieFortune: text });
+    setText("");
+    setShow(false);
+    fetchRows();
+  };
+
+  const handleDelete = async (id: string) => {
+    await axios.delete(`${API}/${id}`);
+    setRows((r) => r.filter((row) => row.id !== id));
+  };
+
+  if (loading) return <Spinner />;
+
+  return (
+    <div className="pa6">
+      <header className="flex justify-between items-center mb5">
+        <h1 className="f2">Fortune cookies</h1>
+        <Button variation="primary" onClick={() => setShow(true)}>
+          <IconPlus /> &nbsp;Nueva frase
+        </Button>
+      </header>
+
+      <Table
+        schema={{
+          properties: {
+            CookieFortune: { title: "Frase", width: 90 },
+            actions: { title: "", width: 10 },
+          },
+        }}
+        items={rows.map((r) => ({
+          ...r,
+          actions: (
+            <Button
+              tone="critical"
+              size="small"
+              onClick={() => handleDelete(r.id)}
+            >
+              <IconDelete />
+            </Button>
+          ),
+        }))}
+        emptyStateLabel="Aún no hay frases"
+      />
+
+      <Modal
+        centered
+        isOpen={show}
+        onClose={() => setShow(false)}
+        bottomBar={
+          <>
+            <Button onClick={() => setShow(false)} variation="secondary">
+              Cancelar
+            </Button>
+            <Button onClick={handleSave} variation="primary">
+              Guardar
+            </Button>
+          </>
+        }
+      >
+        <div className="pa6">
+          <h2 className="f3 mb4">Nueva frase</h2>
+          <Input
+            placeholder="Fortuna China"
+            value={text}
+            onChange={(e: any) => setText(e.target.value)}
+          />
+        </div>
+      </Modal>
     </div>
   );
 };
 
-export default FortuneCookies;
+export default AdminFortune;

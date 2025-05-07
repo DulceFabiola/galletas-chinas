@@ -1,11 +1,20 @@
 {
-  "memory": 128,
-  "timeout": 2,
+  "name": "fortune-cookie",
+  "version": "0.0.1",
+  "builders": {
+    "node": "6.x",
+    "react": "3.x"
+  },
   "routes": {
     "fortune": {
       "path": "/",
       "public": true,
-      "method": "GET"
+      "graphql": false
+    },
+    "deleteFortune": {
+      "path": "/:id",
+      "public": true,
+      "graphql": false
     }
   }
 }
