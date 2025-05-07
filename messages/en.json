@@ -1,0 +1,6 @@
+{
+  "store/fortune.button": "Get fortune",
+  "store/fortune.loading": "Loading...",
+  "store/fortune.phrase": "Your fortune:",
+  "store/fortune.lucky": "Lucky number:"
+}

@@ -1,0 +1,12 @@
+{
+  "store.home": {
+    "children": ["fortune-cookies"]
+  },
+  "rich-text#footer": {
+    "props": {
+      "text": "© 2025 Valtech • VTEX IO demo",
+      "textAlignment": "center",
+      "textPosition": "center"
+    }
+  }
+}

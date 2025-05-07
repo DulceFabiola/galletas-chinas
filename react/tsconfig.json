@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "jsx": "react",
+    "module": "es6",
+    "strict": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "types": ["node", "react", "react-dom"],
+    "moduleResolution": "node"
+  },
+  "include": ["**/*.ts", "**/*.tsx"]
+}

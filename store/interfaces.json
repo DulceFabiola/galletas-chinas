@@ -1,0 +1,5 @@
+{
+  "fortune-cookies": {
+    "component": "FortuneCookieWrapper"
+  }
+}
