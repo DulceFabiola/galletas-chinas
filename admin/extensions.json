@@ -1,0 +1,6 @@
+{
+    "admin.fortune-cookie": {
+      "component": "AdminFortune"
+    }
+  }
+  
