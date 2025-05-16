@@ -1,7 +1,0 @@
-{
-  "slug": "fortune-cookies",
-  "title": "Fortune cookies",
-  "icon": "fa-cookie",
-  "routeId": "fortune-cookies.list",
-  "section": "storeSetup"
-}

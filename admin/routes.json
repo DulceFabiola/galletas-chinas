@@ -1,7 +1,0 @@
-{
-  "fortune-cookies.list": {
-    "path": "/admin/app/fortune-cookies",
-    "exact": true,
-    "template": "admin.fortune-cookies"
-  }
-}

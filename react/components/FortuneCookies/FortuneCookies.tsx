@@ -1,109 +1,69 @@
-import React, { useEffect, useState } from "react";
-import {
-  Button,
-  IconDelete,
-  IconPlus,
-  Modal,
-  Input,
-  Table,
-  Spinner,
-} from "vtex.styleguide";
-
+import React, { useState } from "react";
 import axios from "axios";
+import { Button } from "vtex.styleguide";
 
-type Row = { id: string; CookieFortune: string };
+const rand = (min: number, max: number): number =>
+  Math.floor(Math.random() * (max - min + 1)) + min;
 
-const API = "/_v/fortune";
+const pad2 = (n: number): string => n.toString().padStart(2, "0");
+const pad4 = (n: number): string => n.toString().padStart(4, "0");
 
-const AdminFortune: React.FC = () => {
-  const [rows, setRows] = useState<Row[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [show, setShow] = useState(false);
-  const [text, setText] = useState("");
+const API_BASE_URL =
+  "https://fortunechinecookie--valtech.myvtex.com/_v/fortune-cookie-service";
 
-  const fetchRows = async () => {
+const FortuneCookie: React.FC = () => {
+  const [fortune, setFortune] = useState<string>("");
+  const [luckyNumber, setLuckyNumber] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const getFortune = async () => {
     setLoading(true);
-    const { data } = await axios.get<Row[]>(API);
-    setRows(data);
-    setLoading(false);
+    setFortune("");
+    setLuckyNumber("");
+
+    try {
+      const { data } = await axios.get<{ fortune: string }>(
+        `${API_BASE_URL}/fortune`
+      );
+
+      setFortune(data?.fortune ?? "No fortune found");
+
+      const lucky = `${pad2(rand(0, 99))} ${pad2(rand(0, 99))} ${pad4(
+        rand(0, 9999)
+      )}`;
+      setLuckyNumber(lucky);
+    } catch (error) {
+      console.error("Error fetching fortune:", error);
+      setFortune("Ups, no se pudo obtener la fortuna.");
+    } finally {
+      setLoading(false);
+    }
   };
-
-  useEffect(() => {
-    fetchRows();
-  }, []);
-
-  const handleSave = async () => {
-    if (!text.trim()) return;
-    await axios.post(API, { CookieFortune: text });
-    setText("");
-    setShow(false);
-    fetchRows();
-  };
-
-  const handleDelete = async (id: string) => {
-    await axios.delete(`${API}/${id}`);
-    setRows((r) => r.filter((row) => row.id !== id));
-  };
-
-  if (loading) return <Spinner />;
 
   return (
-    <div className="pa6">
-      <header className="flex justify-between items-center mb5">
-        <h1 className="f2">Fortune cookies</h1>
-        <Button variation="primary" onClick={() => setShow(true)}>
-          <IconPlus /> &nbsp;Nueva frase
-        </Button>
-      </header>
+    <div className="center mw6 w-90 pa4 bg-washed-green br3 shadow-3 tc mt4">
+      <h1 className="f3 fw6 mb4">🍪 Galletas Chinas de la Fortuna 🍪</h1>
 
-      <Table
-        schema={{
-          properties: {
-            CookieFortune: { title: "Frase", width: 90 },
-            actions: { title: "", width: 10 },
-          },
-        }}
-        items={rows.map((r) => ({
-          ...r,
-          actions: (
-            <Button
-              tone="critical"
-              size="small"
-              onClick={() => handleDelete(r.id)}
-            >
-              <IconDelete />
-            </Button>
-          ),
-        }))}
-        emptyStateLabel="Aún no hay frases"
-      />
-
-      <Modal
-        centered
-        isOpen={show}
-        onClose={() => setShow(false)}
-        bottomBar={
-          <>
-            <Button onClick={() => setShow(false)} variation="secondary">
-              Cancelar
-            </Button>
-            <Button onClick={handleSave} variation="primary">
-              Guardar
-            </Button>
-          </>
-        }
+      <Button
+        onClick={getFortune}
+        variation="primary"
+        isLoading={loading}
+        size="regular"
       >
-        <div className="pa6">
-          <h2 className="f3 mb4">Nueva frase</h2>
-          <Input
-            placeholder="Fortuna China"
-            value={text}
-            onChange={(e: any) => setText(e.target.value)}
-          />
+        Obtener mi fortuna
+      </Button>
+
+      {!loading && fortune && (
+        <div className="mt4">
+          <h3 className="f4 f3-ns dark-gray">{fortune}</h3>
+          <p className="f6 f5-ns dark-gray mt3">
+            Números de la suerte:
+            <h5 className="db bg-black-10 pa2 br2 mt2">{luckyNumber}</h5>
+          </p>
         </div>
-      </Modal>
+      )}
     </div>
   );
 };
 
-export default AdminFortune;
+export default FortuneCookie;
