@@ -8,9 +8,7 @@
     "react": "3.x",
     "store": "0.x",
     "messages": "1.x",
-    "docs": "0.x",
-    "node": "6.x",
-    "admin": "0.x"
+    "docs": "0.x"
   },
   "dependencies": {
     "vtex.store": "2.x",
@@ -27,14 +25,5 @@
   "categories": [
     "storefront"
   ],
-  "admin": {
-    "pages": [
-      {
-        "path": "admin/fortune-cookies",
-        "title": "Fortune Cookies",
-        "component": "AdminFortune"
-      }
-    ]
-  },
   "$schema": "https://raw.githubusercontent.com/vtex/node-vtex-api/master/gen/manifest.schema"
 }
