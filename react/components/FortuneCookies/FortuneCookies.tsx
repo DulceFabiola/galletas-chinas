@@ -9,7 +9,7 @@ const pad2 = (n: number): string => n.toString().padStart(2, "0");
 const pad4 = (n: number): string => n.toString().padStart(4, "0");
 
 const API_BASE_URL =
-  "https://fortunechinecookie--valtech.myvtex.com/_v/fortune-cookie-service";
+  "https://chinefortunecookies--valtech.myvtex.com/_v/fortune-cookie-service";
 
 const FortuneCookie: React.FC = () => {
   const [fortune, setFortune] = useState<string>("");
@@ -22,11 +22,20 @@ const FortuneCookie: React.FC = () => {
     setLuckyNumber("");
 
     try {
-      const { data } = await axios.get<{ fortune: string }>(
-        `${API_BASE_URL}/fortune`
-      );
+      const { data } = await axios.get<{
+        fortune: { id: string; CookieFortune: string }[];
+      }>(`${API_BASE_URL}/fortune`);
 
-      setFortune(data?.fortune ?? "No fortune found");
+      const cookies = data.fortune;
+
+      if (!cookies?.length) {
+        throw new Error("No hay galletas disponibles por ahora.");
+      }
+
+      const randomIndex = Math.floor(Math.random() * cookies.length);
+      const selected = cookies[randomIndex];
+
+      setFortune(selected?.CookieFortune ?? "No fortune found");
 
       const lucky = `${pad2(rand(0, 99))} ${pad2(rand(0, 99))} ${pad4(
         rand(0, 9999)
@@ -34,7 +43,9 @@ const FortuneCookie: React.FC = () => {
       setLuckyNumber(lucky);
     } catch (error) {
       console.error("Error fetching fortune:", error);
-      setFortune("Ups, no se pudo obtener la fortuna.");
+      setFortune(
+        "Ups, no se pudo obtener la fortuna. Inténtalo de nuevo más tarde"
+      );
     } finally {
       setLoading(false);
     }
